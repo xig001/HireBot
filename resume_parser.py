@@ -1,22 +1,6 @@
 import nltk
+nltk.download('punkt_tab')
 import os
-import shutil
-
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:
-    nltk.download("punkt")
-
-# Copy punkt to punkt_tab if needed (for NLTK to find it)
-nltk_dir = os.path.join(os.path.expanduser("~"), "nltk_data", "tokenizers")
-punkt_path = os.path.join(nltk_dir, "punkt", "english")
-punkt_tab_path = os.path.join(nltk_dir, "punkt_tab", "english")
-
-if os.path.exists(punkt_path) and not os.path.exists(punkt_tab_path):
-    os.makedirs(punkt_tab_path, exist_ok=True)
-    for fname in os.listdir(punkt_path):
-        shutil.copyfile(os.path.join(punkt_path, fname), os.path.join(punkt_tab_path, fname))
-
 import numpy as np
 from nltk.tokenize import word_tokenize
 import re
