@@ -11,7 +11,7 @@ def recommend_jobs(resume_pdf_path, job_df, glove_embeddings, lambda_pref=0.75, 
     resume_vec = vectorize_text_glove(resume_text, glove_embeddings)
 
     job_vectors = job_df[[col for col in job_df.columns if col.startswith("glove_")]].values
-    job_salaries = job_df["salary"].values
+    job_salaries = job_df["max_salary"].values
     similarity_scores = cosine_similarity([resume_vec], job_vectors)[0]
 
     r_salary = resume_info["salary"]
