@@ -9,6 +9,8 @@ import pickle
 
 from model import recommend_jobs
 from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
+job_meta_url = "https://drive.google.com/uc?id=1UbRU1DEwXAu456CC4C_frmNye51gYuAz"
+job_details_df = pd.read_csv(job_meta_url)
 
 st.set_page_config(page_title="HireBot – Job Recommendation System", layout="centered")
 
@@ -102,14 +104,16 @@ if uploaded_file and submit_button:
 
     with st.spinner("Analyzing resume..."):
         top_jobs, sim_scores, sal_scores, comb_scores = recommend_jobs(resume_path, job_df, glove_embeddings)
+        top_jobs = top_jobs.merge(job_details_df, on="job_id", how="left")
 
         st.subheader("🎯 Your Recommended Jobs")
         for i, row in top_jobs.iterrows():
-            with st.expander(f"📌 {row['job_title']} at {row['company_name']}"):
-                st.markdown(f"**Location**: {row.get('location', 'N/A')}")
-                st.markdown(f"**Salary**: ${row['salary']:,}")
-                st.markdown(f"**Similarity Score**: {sim_scores[i - top_jobs.index[0]]:.4f}")
-                st.markdown(f"**Salary Match Score**: {sal_scores[i - top_jobs.index[0]]:.4f}")
-                st.markdown(f"**Total Match Score**: {comb_scores[i - top_jobs.index[0]]:.4f}")
+            with st.expander(f"📌 {row['title']} at {row['company_name']}"):
+                st.markdown(f"**📍 Location**: {row.get('location', 'N/A')}")
+                st.markdown(f"**🕒 Work Type**: {row.get('formatted_work_type', 'N/A')}")
+                st.markdown(f"**💰 Salary**: ${int(row.get('max_salary', 0)):,}")
+                st.markdown("**📝 Job Description**:")
+                st.text_area("", row.get("job_description", "No description available."), height=200)
+            
 elif submit_button:
     st.warning("⚠️ Please upload a resume.")
