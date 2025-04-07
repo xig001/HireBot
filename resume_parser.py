@@ -5,10 +5,12 @@ from collections import defaultdict
 import PyPDF2
 import nltk
 import os
-nltk.data.path.append(os.path.join(os.getcwd(), "nltk_data"))
+import nltk
+import numpy as np
 from nltk.tokenize import word_tokenize
 
-nltk.download('punkt')
+# 👇 Again, tell NLTK where to look for punkt
+nltk.data.path.append(os.path.join(os.path.dirname(__file__), "nltk_data"))
 
 SECTION_ALIASES = {
     "summary": ["summary", "highlights", "profile", "overview"],
