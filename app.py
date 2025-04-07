@@ -2,29 +2,14 @@ import os
 import nltk
 import streamlit as st
 
-@st.cache_resource
-def setup_nltk():
-    nltk_data_dir = os.path.join(os.getcwd(), "nltk_data")
-    if not os.path.exists(nltk_data_dir):
-        os.makedirs(nltk_data_dir)
+# 👇 Tell NLTK where to find punkt in your repo
+nltk.data.path.append(os.path.join(os.path.dirname(__file__), "nltk_data"))
 
-    try:
-        nltk.data.find("tokenizers/punkt")
-    except LookupError:
-        nltk.download("punkt", download_dir=nltk_data_dir)
-
-    # Add the custom path so NLTK can find it
-    if nltk_data_dir not in nltk.data.path:
-        nltk.data.path.append(nltk_data_dir)
-
-setup_nltk()
-
-
-# Now continue with your regular imports
 import tempfile
 import pandas as pd
 import numpy as np
 import pickle
+
 from model import recommend_jobs
 from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
 
