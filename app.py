@@ -7,6 +7,12 @@ import pickle
 from model import recommend_jobs
 import requests
 from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
+import nltk
+@st.cache_resource
+def setup_nltk():
+    nltk.download('punkt')
+
+setup_nltk()
 
 st.set_page_config(page_title="HireBot – Job Recommendation System", layout="centered")
 
