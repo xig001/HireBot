@@ -68,6 +68,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 st.markdown('<div class="hero-title">HireBot</div>', unsafe_allow_html=True)
 st.markdown('<div class="hero-subtitle">Upload your resume and receive personalized job recommendations instantly.</div>', unsafe_allow_html=True)
 
