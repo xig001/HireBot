@@ -4,6 +4,8 @@ import numpy as np
 from collections import defaultdict
 import PyPDF2
 import nltk
+import os
+nltk.data.path.append(os.path.join(os.getcwd(), "nltk_data"))
 from nltk.tokenize import word_tokenize
 
 nltk.download('punkt')
