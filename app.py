@@ -1,9 +1,14 @@
 import nltk
+import os
 import streamlit as st
 
 @st.cache_resource
 def setup_nltk():
-    nltk.download("punkt")
+    try:
+        nltk.data.find("tokenizers/punkt")
+    except LookupError:
+        nltk.download("punkt", download_dir=os.path.join(os.getcwd(), "nltk_data"))
+        nltk.data.path.append(os.path.join(os.getcwd(), "nltk_data"))
 
 setup_nltk()
 
