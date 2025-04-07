@@ -11,6 +11,7 @@ from model import recommend_jobs
 from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
 job_meta_url = "https://drive.google.com/uc?id=1UbRU1DEwXAu456CC4C_frmNye51gYuAz"
 job_details_df = pd.read_csv(job_meta_url)
+job_details_df.columns = job_details_df.columns.str.strip()
 
 st.set_page_config(page_title="HireBot – Job Recommendation System", layout="centered")
 
@@ -103,10 +104,10 @@ if uploaded_file and submit_button:
 
     with st.spinner("Analyzing resume..."):
         top_jobs, sim_scores, sal_scores, comb_scores = recommend_jobs(resume_path, job_df, glove_embeddings)
-        top_jobs["company_id"] = top_jobs["company_id"].astype(str)
+        top_jobs["job_id"] = top_jobs["job_id"].astype(str)
         job_details_df["company_id"] = job_details_df["company_id"].astype(str)
 
-        top_jobs = top_jobs.merge(job_details_df, left_on="company_id", right_on="company_id", how="left")
+        top_jobs = top_jobs.merge(job_details_df, left_on="job_id", right_on="company_id", how="left")
 
         st.subheader("🎯 Your Recommended Jobs")
         for i, row in top_jobs.iterrows():
