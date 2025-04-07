@@ -1,18 +1,13 @@
-
 import streamlit as st
 import tempfile
 import pandas as pd
 import numpy as np
 import pickle
-from model import recommend_jobs
-import requests
-from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
 import nltk
-@st.cache_resource
-def setup_nltk():
-    nltk.download('punkt')
+nltk.download("punkt") 
 
-setup_nltk()
+from model import recommend_jobs
+from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
 
 st.set_page_config(page_title="HireBot – Job Recommendation System", layout="centered")
 
