@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import pickle
 from model import recommend_jobs
+import requests
 from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
 
 st.set_page_config(page_title="HireBot – Job Recommendation System", layout="centered")
@@ -68,8 +69,22 @@ st.markdown('<div class="hero-subtitle">Upload your resume and receive personali
 
 @st.cache_resource
 def load_resources():
+    # Direct download links from Google Drive
+    glove_url = "https://drive.google.com/uc?export=download&id=1tytPPZiwriSzVL6br3sc3ggcnF9vXgei"
+    job_url = "https://drive.google.com/uc?export=download&id=1zQdu6JIFwmXcU2yEjLL64TnHCDnqKn03"
+
+    # Download and load job.pkl
+    job_response = requests.get(job_url)
+    with open("job.pkl", "wb") as f:
+        f.write(job_response.content)
     job_df = pd.read_pickle("job.pkl")
+
+    # Download and load GloVe
+    glove_response = requests.get(glove_url)
+    with open("glove.6B.100d.txt", "wb") as f:
+        f.write(glove_response.content)
     glove = load_glove_embeddings("glove.6B.100d.txt")
+
     return job_df, glove
 
 job_df, glove_embeddings = load_resources()
