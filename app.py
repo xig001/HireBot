@@ -103,7 +103,8 @@ if uploaded_file and submit_button:
 
     with st.spinner("Analyzing resume..."):
         top_jobs, sim_scores, sal_scores, comb_scores = recommend_jobs(resume_path, job_df, glove_embeddings)
-        top_jobs = top_jobs.merge(job_details_df, on="company_id", how="left")
+        
+        top_jobs = top_jobs.merge(job_details_df, left_on="job_id", right_on="_company_id", how="left")
 
         st.subheader("🎯 Your Recommended Jobs")
         for i, row in top_jobs.iterrows():
