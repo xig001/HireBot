@@ -1,10 +1,11 @@
 import os
 import nltk
+
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
 import streamlit as st
-
-# 👇 Tell NLTK where to find punkt in your repo
-nltk.data.path.append(os.path.join(os.path.dirname(__file__), "nltk_data"))
-
 import tempfile
 import pandas as pd
 import numpy as np
