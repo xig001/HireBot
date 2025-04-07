@@ -1,6 +1,13 @@
 import nltk
-nltk.download("punkt") 
 import streamlit as st
+
+@st.cache_resource
+def setup_nltk():
+    nltk.download("punkt")
+
+setup_nltk()
+
+# Now continue with your regular imports
 import tempfile
 import pandas as pd
 import numpy as np
