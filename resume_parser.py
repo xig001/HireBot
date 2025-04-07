@@ -1,11 +1,12 @@
 import os
 import nltk
+
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt")
 import numpy as np
 from nltk.tokenize import word_tokenize
-
-# 👇 Again, tell NLTK where to look for punkt
-nltk.data.path.append(os.path.join(os.path.dirname(__file__), "nltk_data"))
-
 import re
 import numpy as np
 from collections import defaultdict
