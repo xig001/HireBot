@@ -1,11 +1,10 @@
+import nltk
+nltk.download("punkt") 
 import streamlit as st
 import tempfile
 import pandas as pd
 import numpy as np
 import pickle
-import nltk
-nltk.download("punkt") 
-
 from model import recommend_jobs
 from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
 
