@@ -81,12 +81,17 @@ def vectorize_text_glove(text, glove_embeddings, dim=100):
         return np.zeros(dim)
     return np.mean(vecs, axis=0)
 
-def load_glove_embeddings(filepath):
+def load_glove_embeddings(filepath, dim=100):
     embeddings = {}
     with open(filepath, "r", encoding="utf-8") as f:
         for line in f:
-            parts = line.split()
+            parts = line.strip().split()
+            if len(parts) != dim + 1:
+                continue  # skip corrupted or incomplete lines
             word = parts[0]
-            vec = np.array(parts[1:], dtype="float32")
-            embeddings[word] = vec
+            try:
+                vec = np.array(parts[1:], dtype="float32")
+                embeddings[word] = vec
+            except ValueError:
+                continue  # skip if numbers are malformed
     return embeddings
