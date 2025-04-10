@@ -75,7 +75,7 @@ st.markdown('<div class="hero-subtitle">Upload your resume and receive personali
 def load_resources():
     # Direct download links from Google Drive
     glove_url = "https://drive.google.com/uc?export=download&id=1tytPPZiwriSzVL6br3sc3ggcnF9vXgei"
-    job_url = "https://drive.google.com/uc?export=download&id=1zQdu6JIFwmXcU2yEjLL64TnHCDnqKn03"
+    job_url = "https://drive.google.com/uc?export=download&id=19Fd-HuXWu8Fq9W81HUp-ZW5yMk_eqthK"
 
     # Download and load job.pkl
     job_response = requests.get(job_url)
