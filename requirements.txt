@@ -5,3 +5,4 @@ numpy
 PyPDF2
 scikit-learn
 nltk
+gdown
