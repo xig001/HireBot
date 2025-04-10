@@ -117,7 +117,7 @@ if uploaded_file and submit_button:
         
         st.subheader("🎯 Your Recommended Jobs")
         
-        st.dataframe(matched_job_details)
+        st.dataframe(matched_job_details.columns)
         #for i, row in matched_job_details.iterrows():
          #   with st.expander(f"📌 {row[2]} at {row[1]}"):  # title at index 2, company_name at index 1
           #      st.markdown(f"**📍 Location**: {row[6]}")  # location at index 6
