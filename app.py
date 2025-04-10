@@ -107,9 +107,9 @@ if uploaded_file and submit_button:
         top_jobs, sim_scores, sal_scores, comb_scores = recommend_jobs(resume_path, job_df, glove_embeddings)
 
         top_jobs["job_id"] = top_jobs["job_id"].astype(str)
-        job_details_df[job_details_df.columns[0]] = job_details_df["job_id"].astype(str)
+        job_details_df[job_details_df.columns[0]]
         top_job_ids = top_jobs["job_id"].tolist()
-        matched_job_details = job_details_df[job_details_df["job_id"].isin(top_job_ids)].reset_index(drop=True)
+        matched_job_details = job_details_df[job_details_df[job_details_df.columns[0]].isin(top_job_ids)].reset_index(drop=True)
         
         st.subheader("🎯 Your Recommended Jobs")
         
