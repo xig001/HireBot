@@ -112,41 +112,18 @@ if uploaded_file and submit_button:
 
         top_jobs["job_id"] = top_jobs["job_id"].astype(str)
         job_details_df["job_id"] = job_details_df["job_id"].astype(str)
-
-# Merge
-        top_jobs = top_jobs.merge(job_details_df, on="job_id", how="left")
-        def safe_get(row, col_name, index=None, default="N/A"):
-            try:
-                return row[col_name]
-            except (KeyError, IndexError):
-                if index is not None:
-                    try:
-                        return row.iloc[index]
-                    except IndexError:
-                        return default
-                return default
-
+        top_job_ids = top_jobs["job_id"].tolist()
+        matched_job_details = job_details_df[job_details_df["job_id"].isin(top_job_ids)].reset_index(drop=True)
+        
         st.subheader("🎯 Your Recommended Jobs")
-        for i, row in top_jobs.iterrows():
-            job_title = safe_get(row, "title", index=2)
-            company = safe_get(row, "company_name", index=1)
-            location = safe_get(row, "location", index=6)
-            work_type = safe_get(row, "formatted_work_type", index=11)
-            salary = safe_get(row, "max_salary", index=4)
-            description = safe_get(row, "description", index=3)
-            app_url = safe_get(row, "application_url", index=16)
-
-            with st.expander(f"📌 {job_title} at {company}"):
-                st.markdown(f"**📍 Location**: {location}")
-                st.markdown(f"**🕒 Work Type**: {work_type}")
-                st.markdown(f"**💰 Salary**: ${int(salary):,}" if pd.notna(salary) else "**💰 Salary**: N/A")
+        for i, row in matched_job_details.iterrows():
+            with st.expander(f"📌 {row[2]} at {row[1]}"):  # title at index 2, company_name at index 1
+                st.markdown(f"**📍 Location**: {row[6]}")  # location at index 6
+                st.markdown(f"**🕒 Work Type**: {row[11]}")  # formatted_work_type at index 11
+                st.markdown(f"**💰 Salary**: ${int(row[4]):,}")  # max_salary at index 4
+                st.markdown(f"**🔗 Apply Here**: [Application Link]({row[16]})")  # application_url at index 16
                 st.markdown("**📝 Job Description**:")
-                st.text_area("", description if pd.notna(description) else "No description available.", height=200)
-                if pd.notna(app_url) and isinstance(app_url, str) and app_url.startswith("http"):
-                    st.markdown(f"[📬 Apply Here]({app_url})", unsafe_allow_html=True)
-                else:
-                    st.markdown("*No application link available.*")
+                st.text_area("", row[3], height=200)  # description at index
 
-            
 elif submit_button:
     st.warning("⚠️ Please upload a resume.")
