@@ -108,6 +108,15 @@ if uploaded_file and submit_button:
         top_jobs["job_id"] = top_jobs["job_id"].astype(str)
         job_details_df["job_id"] = job_details_df["job_id"].astype(str)
         top_jobs = top_jobs.merge(job_details_df, on="job_id", how="left")
+        if "job_id" not in job_details_df.columns:
+            job_details_df.rename(columns={job_details_df.columns[0]: "job_id"}, inplace=True)
+
+
+        top_jobs["job_id"] = top_jobs["job_id"].astype(str)
+        job_details_df["job_id"] = job_details_df["job_id"].astype(str)
+
+# Merge
+        top_jobs = top_jobs.merge(job_details_df, on="job_id", how="left")
         
 
         st.subheader("🎯 Your Recommended Jobs")
