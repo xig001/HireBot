@@ -93,8 +93,7 @@ def load_resources():
     return job_df, glove
 
 job_df, glove_embeddings = load_resources()
-st.write("📄 Job Details Sample:")
-st.dataframe(job_details_df.head())
+
 with st.form("upload_form"):
     uploaded_file = st.file_uploader("📄 Upload your resume", type=["pdf"])
     submit_button = st.form_submit_button("🔍 Get Recommendations")
@@ -113,16 +112,15 @@ if uploaded_file and submit_button:
         matched_job_details = job_details_df[job_details_df[job_details_df.columns[0]].isin(top_job_ids)].reset_index(drop=True)
         
         st.subheader("🎯 Your Recommended Jobs")
-        
-        st.dataframe(matched_job_details)
-        #for i, row in matched_job_details.iterrows():
-         #   with st.expander(f"📌 {row[2]} at {row[1]}"):  # title at index 2, company_name at index 1
-          #      st.markdown(f"**📍 Location**: {row[6]}")  # location at index 6
-           #     st.markdown(f"**🕒 Work Type**: {row[11]}")  # formatted_work_type at index 11
-            #    st.markdown(f"**💰 Salary**: ${int(row[4]):,}")  # max_salary at index 4
-              #  st.markdown(f"**🔗 Apply Here**: [Application Link]({row[16]})")  # application_url at index 16
-             #   st.markdown("**📝 Job Description**:")
-              #  st.text_area("", row[3], height=200)  # description at index
+
+        for i, row in matched_job_details.iterrows():
+            with st.expander(f"📌 {row['title']} at {row['company_name']}"):
+                st.markdown(f"**📍 Location**: {row.get('location', 'N/A')}")
+                st.markdown(f"**🕒 Work Type**: {row.get('formatted_work_type', 'N/A')}")
+                st.markdown(f"**💰 Salary**: ${int(row.get('max_salary', 0)):,}")
+                st.markdown(f"**🔗 Apply Here**: [Application Link]({row.get('application_url', '#')})")
+                st.markdown("**📝 Job Description**:")
+                st.text_area("", row.get('description', 'No description available.'), height=200)
 
 elif submit_button:
     st.warning("⚠️ Please upload a resume.")
