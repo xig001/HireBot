@@ -116,14 +116,16 @@ if uploaded_file and submit_button:
         matched_job_details = job_details_df[job_details_df["job_id"].isin(top_job_ids)].reset_index(drop=True)
         
         st.subheader("🎯 Your Recommended Jobs")
-        for i, row in matched_job_details.iterrows():
-            with st.expander(f"📌 {row[2]} at {row[1]}"):  # title at index 2, company_name at index 1
-                st.markdown(f"**📍 Location**: {row[6]}")  # location at index 6
-                st.markdown(f"**🕒 Work Type**: {row[11]}")  # formatted_work_type at index 11
-                st.markdown(f"**💰 Salary**: ${int(row[4]):,}")  # max_salary at index 4
-                st.markdown(f"**🔗 Apply Here**: [Application Link]({row[16]})")  # application_url at index 16
-                st.markdown("**📝 Job Description**:")
-                st.text_area("", row[3], height=200)  # description at index
+        
+        st.dataframe(matched_job_details)
+        #for i, row in matched_job_details.iterrows():
+         #   with st.expander(f"📌 {row[2]} at {row[1]}"):  # title at index 2, company_name at index 1
+          #      st.markdown(f"**📍 Location**: {row[6]}")  # location at index 6
+           #     st.markdown(f"**🕒 Work Type**: {row[11]}")  # formatted_work_type at index 11
+            #    st.markdown(f"**💰 Salary**: ${int(row[4]):,}")  # max_salary at index 4
+              #  st.markdown(f"**🔗 Apply Here**: [Application Link]({row[16]})")  # application_url at index 16
+             #   st.markdown("**📝 Job Description**:")
+              #  st.text_area("", row[3], height=200)  # description at index
 
 elif submit_button:
     st.warning("⚠️ Please upload a resume.")
