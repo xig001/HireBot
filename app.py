@@ -115,22 +115,38 @@ if uploaded_file and submit_button:
 
 # Merge
         top_jobs = top_jobs.merge(job_details_df, on="job_id", how="left")
-        
+        def safe_get(row, col_name, index=None, default="N/A"):
+            try:
+                return row[col_name]
+            except (KeyError, IndexError):
+                if index is not None:
+                    try:
+                        return row.iloc[index]
+                    except IndexError:
+                        return default
+                return default
 
         st.subheader("🎯 Your Recommended Jobs")
-    
         for i, row in top_jobs.iterrows():
-            with st.expander(f"📌 {row[2]} at {row[1]}"):  # title, company_name
-                st.markdown(f"**📍 Location**: {row[6]}")  # location
-                st.markdown(f"**🕒 Work Type**: {row[12]}")  # formatted_work_type
-                st.markdown(f"**💰 Salary**: ${int(row[4]):,}")  # max_salary
-                st.markdown("**📝 Job Description**:")
-                st.text_area("", row[3], height=200)  # description
+            job_title = safe_get(row, "title", index=2)
+            company = safe_get(row, "company_name", index=1)
+            location = safe_get(row, "location", index=6)
+            work_type = safe_get(row, "formatted_work_type", index=11)
+            salary = safe_get(row, "max_salary", index=4)
+            description = safe_get(row, "description", index=3)
+            app_url = safe_get(row, "application_url", index=16)
 
-                if pd.notna(row[16]) and isinstance(row[16], str) and row[16].startswith("http"):
-                    st.markdown(f"[📬 Apply Here]({row[16]})", unsafe_allow_html=True)
+            with st.expander(f"📌 {job_title} at {company}"):
+                st.markdown(f"**📍 Location**: {location}")
+                st.markdown(f"**🕒 Work Type**: {work_type}")
+                st.markdown(f"**💰 Salary**: ${int(salary):,}" if pd.notna(salary) else "**💰 Salary**: N/A")
+                st.markdown("**📝 Job Description**:")
+                st.text_area("", description if pd.notna(description) else "No description available.", height=200)
+                if pd.notna(app_url) and isinstance(app_url, str) and app_url.startswith("http"):
+                    st.markdown(f"[📬 Apply Here]({app_url})", unsafe_allow_html=True)
                 else:
                     st.markdown("*No application link available.*")
+
             
 elif submit_button:
     st.warning("⚠️ Please upload a resume.")
