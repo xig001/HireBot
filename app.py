@@ -92,7 +92,8 @@ def load_resources():
     return job_df, glove
 
 job_df, glove_embeddings = load_resources()
-
+st.write("📄 Job Details Sample:")
+st.dataframe(job_details_df.head())
 with st.form("upload_form"):
     uploaded_file = st.file_uploader("📄 Upload your resume", type=["pdf"])
     submit_button = st.form_submit_button("🔍 Get Recommendations")
