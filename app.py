@@ -105,13 +105,9 @@ if uploaded_file and submit_button:
 
     with st.spinner("Analyzing resume..."):
         top_jobs, sim_scores, sal_scores, comb_scores = recommend_jobs(resume_path, job_df, glove_embeddings)
-        
-        if "job_id" not in job_details_df.columns:
-            job_details_df.rename(columns={job_details_df.columns[0]: "job_id"}, inplace=True)
-
 
         top_jobs["job_id"] = top_jobs["job_id"].astype(str)
-        job_details_df["job_id"] = job_details_df["job_id"].astype(str)
+        job_details_df[job_details_df.columns[0]] = job_details_df["job_id"].astype(str)
         top_job_ids = top_jobs["job_id"].tolist()
         matched_job_details = job_details_df[job_details_df["job_id"].isin(top_job_ids)].reset_index(drop=True)
         
