@@ -9,8 +9,11 @@ import pickle
 import requests
 from model import recommend_jobs
 from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
-job_details_url = "https://drive.google.com/uc?export=download&id=1UbRU1DEwXAu456CC4C_frmNye51gYuAz"
-job_details_df = pd.read_csv(job_details_url)
+dropbox_url = "https://www.dropbox.com/scl/fi/rjohtc1r5rrmy7m239mx1/filtered_job_details.csv?rlkey=0bloxkyefpsswlky1rugccoll&st=5e323yen&dl=0"
+raw_url = dropbox_url.replace("dl=0", "raw=1")
+
+# Load the CSV file
+job_details_df = pd.read_csv(raw_url)
 
 st.set_page_config(page_title="HireBot – Job Recommendation System", layout="centered")
 
