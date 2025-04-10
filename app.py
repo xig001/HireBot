@@ -116,7 +116,11 @@ if uploaded_file and submit_button:
             with st.expander(f"📌 {row['title']} at {row['company_name']}"):
                 st.markdown(f"**📍 Location**: {row.get('location', 'N/A')}")
                 st.markdown(f"**🕒 Work Type**: {row.get('formatted_work_type', 'N/A')}")
-                st.markdown(f"**💰 Salary**: ${int(row.get('max_salary', 0)):,}")
+                salary = row.get('max_salary')
+                if pd.notna(salary):
+                    st.markdown(f"**💰 Salary**: ${int(salary):,}")
+                else:
+                    st.markdown("**💰 Salary**: Not specified")
                 st.markdown(f"**🔗 Apply Here**: [Application Link]({row.get('application_url', '#')})")
                 st.markdown("**📝 Job Description**:")
                 st.text_area("", row.get('description', 'No description available.'), height=200)
