@@ -9,7 +9,7 @@ import pickle
 import requests
 from model import recommend_jobs
 from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
-raw_url = "https://drive.google.com/file/d/1UbRU1DEwXAu456CC4C_frmNye51gYuAz/view?usp=drive_link"
+raw_url = "https://drive.google.com/uc?export=download&id=1UbRU1DEwXAu456CC4C_frmNye51gYuAz"
 # Load the CSV file
 job_details_df = pd.read_csv(raw_url)
 
