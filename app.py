@@ -104,8 +104,7 @@ if uploaded_file and submit_button:
 
     with st.spinner("Analyzing resume..."):
         top_jobs, sim_scores, sal_scores, comb_scores = recommend_jobs(resume_path, job_df, glove_embeddings)
-        st.write("Top Jobs columns:", top_jobs.columns.tolist())
-        st.dataframe(top_jobs.head())
+        
         top_jobs["job_id"] = top_jobs["job_id"].astype(str)
         job_details_df[job_details_df.columns[0]]
         top_job_ids = top_jobs["job_id"].tolist()
@@ -113,7 +112,7 @@ if uploaded_file and submit_button:
         
         st.subheader("🎯 Your Recommended Jobs")
         
-        st.dataframe(matched_job_details.columns)
+        st.dataframe(matched_job_details)
         #for i, row in matched_job_details.iterrows():
          #   with st.expander(f"📌 {row[2]} at {row[1]}"):  # title at index 2, company_name at index 1
           #      st.markdown(f"**📍 Location**: {row[6]}")  # location at index 6
