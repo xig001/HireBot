@@ -118,13 +118,19 @@ if uploaded_file and submit_button:
         
 
         st.subheader("🎯 Your Recommended Jobs")
+    
         for i, row in top_jobs.iterrows():
-            with st.expander(f"📌 {row['title']} at {row['company_name']}"):
-                st.markdown(f"**📍 Location**: {row.get('location', 'N/A')}")
-                st.markdown(f"**🕒 Work Type**: {row.get('formatted_work_type', 'N/A')}")
-                st.markdown(f"**💰 Salary**: ${int(row.get('max_salary', 0)):,}")
+            with st.expander(f"📌 {row[2]} at {row[1]}"):  # title, company_name
+                st.markdown(f"**📍 Location**: {row[6]}")  # location
+                st.markdown(f"**🕒 Work Type**: {row[12]}")  # formatted_work_type
+                st.markdown(f"**💰 Salary**: ${int(row[4]):,}")  # max_salary
                 st.markdown("**📝 Job Description**:")
-                st.text_area("", row.get("job_description", "No description available."), height=200)
+                st.text_area("", row[3], height=200)  # description
+
+                if pd.notna(row[16]) and isinstance(row[16], str) and row[16].startswith("http"):
+                    st.markdown(f"[📬 Apply Here]({row[16]})", unsafe_allow_html=True)
+                else:
+                    st.markdown("*No application link available.*")
             
 elif submit_button:
     st.warning("⚠️ Please upload a resume.")
