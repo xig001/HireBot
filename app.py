@@ -6,12 +6,9 @@ import tempfile
 import pandas as pd
 import numpy as np
 import pickle
-import gdown
 from model import recommend_jobs
 from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
-job_details_url = "https://drive.google.com/uc?id=1UbRU1DEwXAu456CC4C_frmNye51gYuAz"
-job_details_path = "job_details.csv"
-gdown.download(job_details_url, job_details_path, quiet=False)
+job_details_url = "https://drive.google.com/uc?export=download&id=1UbRU1DEwXAu456CC4C_frmNye51gYuAz"
 job_details_df = pd.read_csv(job_details_path)
 
 st.set_page_config(page_title="HireBot – Job Recommendation System", layout="centered")
