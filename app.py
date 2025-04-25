@@ -5,15 +5,26 @@ import streamlit as st
 import tempfile
 import pandas as pd
 import numpy as np
-import pickle
 import requests
-from model import recommend_jobs
-from resume_parser import parse_pdf, extract_resume_info, vectorize_text_glove, load_glove_embeddings
-
-raw_url = "https://www.dropbox.com/scl/fi/rjohtc1r5rrmy7m239mx1/filtered_job_details.csv?rlkey=0bloxkyefpsswlky1rugccoll&st=5e323yen&dl=1"
-job_details_df = pd.read_csv(raw_url)
+from model import recommend_jobs_2
+from resume_parser import load_glove_embeddings
 
 st.set_page_config(page_title="HireBot – Job Recommendation System", layout="centered")
+
+raw_url = "https://www.dropbox.com/scl/fi/rjohtc1r5rrmy7m239mx1/filtered_job_details.csv?rlkey=0bloxkyefpsswlky1rugccoll&st=5e323yen&dl=1"
+
+@st.cache_data
+def load_job_details(url):
+    df = pd.read_csv(url)
+    # Ensure consistent types
+    df['job_id'] = df['job_id'].astype(str)
+    # Return filtered details
+    return df
+
+job_details_df = load_job_details(raw_url)  # Cached: only reads CSV once per session
+
+
+
 
 # --- UI Style ---
 st.markdown("""
@@ -77,36 +88,65 @@ def load_resources():
     glove_url = "https://drive.google.com/uc?export=download&id=1tytPPZiwriSzVL6br3sc3ggcnF9vXgei"
     job_url = "https://drive.google.com/uc?export=download&id=19Fd-HuXWu8Fq9W81HUp-ZW5yMk_eqthK"
 
+    # Download job.pkl containing precomputed glove vectors and salaries
     job_response = requests.get(job_url)
     with open("job.pkl", "wb") as f:
         f.write(job_response.content)
     job_df = pd.read_pickle("job.pkl")
+    job_df['job_id'] = job_df['job_id'].astype(str)
+    job_df = job_df.set_index('job_id')
 
-    glove_response = requests.get(glove_url)
-    with open("glove.6B.100d.txt", "wb") as f:
-        f.write(glove_response.content)
+    # Extract precomputed vectors and compute norms once
+    glove_cols = [c for c in job_df.columns if c.startswith('glove_')]
+    job_vectors = job_df[glove_cols].to_numpy()  # precomputed glove vectors
+    job_norms = np.linalg.norm(job_vectors, axis=1)  # norms for cosine denom
+
+    # Salaries array for scoring
+    if 'salary' in job_df.columns:
+        salaries = job_df['salary']
+    else:
+        max_sal = job_df['max_salary']
+        # Identify missing entries and hourly salaries
+        missing_mask = max_sal.isna()
+        sal = max_sal.copy().fillna(0)
+        # Hourly wages assumed if < 1000: convert to annual (40h/week * 52 weeks)
+        hourly_mask = sal < 1000
+        sal[hourly_mask] = sal[hourly_mask] * 40 * 52
+        # For original NA entries, generate random annual salary between 30k and 150k
+        if missing_mask.any():
+            sal[missing_mask] = np.random.randint(30000, 150001, size=missing_mask.sum())
+        salaries = sal
+    job_salaries = salaries.to_numpy()
+
+    # Return all needed resources
     glove = load_glove_embeddings("glove.6B.100d.txt")
+    return job_df, job_vectors, job_norms, job_salaries, glove
 
-    return job_df, glove
-
-job_df, glove_embeddings = load_resources()
+job_df, JOB_VECTORS, JOB_NORMS, JOB_SALARIES, glove_embeddings = load_resources()
 
 # Add filters in sidebar
 st.sidebar.header("Filter Jobs")
 selected_location = st.sidebar.selectbox("Location", ["All"] + sorted(job_details_df["location"].dropna().unique()))
 selected_work_type = st.sidebar.selectbox("Work Type", ["All"] + sorted(job_details_df["formatted_work_type"].dropna().unique()))
 
-# Filter job_df
-filtered_job_df = job_df.copy()
-filtered_job_details_df = job_details_df.copy()
+# Apply boolean masks
+def apply_filters(details_df):
+    mask_loc = (details_df['location'] == selected_location) if selected_location != 'All' else pd.Series(True, index=details_df.index)
+    mask_work = (details_df['formatted_work_type'] == selected_work_type) if selected_work_type != 'All' else pd.Series(True, index=details_df.index)
+    return details_df[mask_loc & mask_work]
 
-if selected_location != "All":
-    filtered_job_details_df = filtered_job_details_df[filtered_job_details_df["location"] == selected_location]
-if selected_work_type != "All":
-    filtered_job_details_df = filtered_job_details_df[filtered_job_details_df["formatted_work_type"] == selected_work_type]
 
-filtered_job_ids = filtered_job_details_df["job_id"].astype(str).tolist()
-filtered_job_df = filtered_job_df[filtered_job_df["job_id"].astype(str).isin(filtered_job_ids)]
+
+filtered_details = apply_filters(job_details_df)
+# Filter job_df by index
+filtered_ids = filtered_details['job_id'].astype(str)
+filtered_mask = job_df.index.isin(filtered_ids)
+
+# Pre-slice numpy arrays according to filter
+FILTERED_VECTORS = JOB_VECTORS[filtered_mask]
+FILTERED_NORMS = JOB_NORMS[filtered_mask]
+FILTERED_SALARIES = JOB_SALARIES[filtered_mask]
+FILTERED_INDEX = job_df.index[filtered_mask]
 
 with st.form("upload_form"):
     uploaded_file = st.file_uploader("📄 Upload your resume", type=["pdf"])
@@ -118,26 +158,18 @@ if uploaded_file and submit_button:
         resume_path = temp_file.name
 
     with st.spinner("Analyzing resume..."):
-        top_jobs, sim_scores, sal_scores, comb_scores = recommend_jobs(resume_path, filtered_job_df, glove_embeddings)
-
-        top_jobs["job_id"] = top_jobs["job_id"].astype(str)
-        filtered_job_details_df["job_id"] = filtered_job_details_df["job_id"].astype(str)
-        matched_job_details = filtered_job_details_df[filtered_job_details_df["job_id"].isin(top_jobs["job_id"])].reset_index(drop=True)
+        top, sim, sal, comb = recommend_jobs_2(resume_path, job_df, glove_embeddings, FILTERED_VECTORS, FILTERED_NORMS, FILTERED_SALARIES, FILTERED_INDEX, 0.75, 3)
 
         st.subheader("🎯 Your Recommended Jobs")
 
-        for i, row in matched_job_details.iterrows():
+        for job_id in top.index:
+            row = filtered_details.set_index('job_id').loc[job_id]
             with st.expander(f"📌 {row['title']} at {row['company_name']}"):
-                st.markdown(f"**📍 Location**: {row.get('location', 'N/A')}")
-                st.markdown(f"**🕒 Work Type**: {row.get('formatted_work_type', 'N/A')}")
-                salary = row.get('max_salary')
-                if pd.notna(salary):
-                    st.markdown(f"**💰 Salary**: ${int(salary):,}")
-                else:
-                    st.markdown("**💰 Salary**: Not specified")
-                st.markdown(f"**🔗 Apply Here**: [Application Link]({row.get('application_url', '#')})")
-                st.markdown("**📜 Job Description**:")
-                st.text_area("", row.get('description', 'No description available.'), height=200)
-
+                st.markdown(f"**📍 Location**: {row.get('location','N/A')}")
+                st.markdown(f"**🕒 Work Type**: {row.get('formatted_work_type','N/A')}")
+                salv = row.get('max_salary')
+                st.markdown(f"**💰 Salary**: ${int(salv):,}" if pd.notna(salv) else "**💰 Salary**: Not specified")
+                st.markdown(f"**🔗 Apply Here**: [Link]({row.get('application_url','#')})")
+                st.text_area('', row.get('description','No description.'), height=200)
 elif submit_button:
     st.warning("⚠️ Please upload a resume.")
